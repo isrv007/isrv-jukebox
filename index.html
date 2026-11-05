@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iSRV Collection - Music Player</title>
+    <!-- Google Fonts & FontAwesome for Modern Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-color: #0b0914;
+            --sidebar-bg: #141124;
+            --card-bg: rgba(25, 21, 42, 0.75);
+            --accent-pink: #ff2a75;
+            --accent-orange: #ff4500;
+            --text-main: #ffffff;
+            --text-muted: #a09cb0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background: radial-gradient(circle at top right, #2a1147, var(--bg-color));
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Outer Mac-Style App Window Container */
+        .app-window {
+            width: 1080px;
+            height: 640px;
+            background: rgba(15, 12, 28, 0.85);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            display: flex;
+            overflow: hidden;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Window Header Dots */
+        .window-dots {
+            position: absolute;
+            top: 20px;
+            left: 24px;
+            display: flex;
+            gap: 8px;
+            z-index: 20;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .dot-red { background: #ff5f56; }
+        .dot-yellow { background: #ffbd2e; }
+        .dot-green { background: #27c93f; }
+
+        /* Sidebar Navigation */
+        aside {
+            width: 270px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid rgba(255, 255, 255, 0.04);
+            display: flex;
+            flex-direction: column;
+            padding: 55px 20px 30px 20px;
+            gap: 24px;
+            z-index: 5;
+        }
+
+        /* Authentic iOS Liquid Glass Widget */
+        .ios-clock-widget {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02));
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 18px;
+            padding: 16px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.5), 
+                inset 0 1px 1px rgba(255, 255, 255, 0.25), 
+                inset 0 -1px 1px rgba(0, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ios-date {
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.65);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .ios-time {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #ffffff;
+            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+        }
+
+        .logo-area {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding-left: 4px;
+        }
+
+        .logo-area h2 {
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-orange), var(--accent-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 0.5px;
+        }
+
+        .logo-area span {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .nav-section {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: linear-gradient(135deg, rgba(255, 69, 0, 0.15), rgba(255, 42, 117, 0.15));
+            color: var(--text-main);
+            border-left: 3px solid var(--accent-orange);
+        }
+
+        /* Main Content Area */
+        main {
+            flex: 1;
+            padding: 40px 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            overflow-y: auto;
+            z-index: 5;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-box {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 30px;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 320px;
+            color: var(--text-muted);
+        }
+
+        .search-box input {
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            outline: none;
+            width: 100%;
+            font-size: 14px;
+        }
+
+        /* Views Container */
+        .view-section {
+            display: none;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .view-section.active {
+            display: flex;
+        }
+
+        /* Hero Player Showcase Layout */
+        .hero-showcase {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        /* Player Card Wrapper with Dual Neon Border Loop */
+        .player-card-wrapper {
+            position: relative;
+            border-radius: 26px;
+            padding: 2px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        @keyframes neonBorderLoop {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .player-card-wrapper::before {
+            content: '';
+            position: absolute;
+            inset: -50%;
+            background: conic-gradient(
+                from 0deg at 50% 50%,
+                transparent 0%,
+                var(--accent-orange) 15%,
+                transparent 30%,
+                var(--accent-pink) 65%,
+                transparent 80%,
+                transparent 100%
+            );
+            animation: neonBorderLoop 6s linear infinite;
+            z-index: 0;
+        }
+
+        .player-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 24px;
+            padding: 26px 33px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(255, 69, 0, 0.05);
+            position: relative;
+            z-index: 1;
+        }
+
+        .player-top-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .track-meta-group {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .album-art-thumb {
+            width: 70px;
+            height: 70px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #2b1055, #ff4500);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            box-shadow: 0 8px 20px rgba(255, 69, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .track-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            letter-spacing: 0.5px;
+            max-width: 350px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .track-subtitle {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        /* Circular Visualizer Canvas Container */
+        .visualizer-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 150px;
+            position: relative;
+            z-index: 1;
+            margin: 5px 0;
+        }
+
+        #visualizer-canvas {
+            width: 140px;
+            height: 140px;
+        }
+
+        /* Custom Modern Audio Player UI Controls */
+        .audio-controls-modern {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 1;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            height: 5px;
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-orange), var(--accent-pink));
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        .player-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .control-btns {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .control-btns button {
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            font-size: 18px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .control-btns button:hover {
+            color: var(--accent-orange);
+        }
+
+        .play-pause-btn {
+            background: linear-gradient(135deg, var(--accent-orange), var(--accent-pink)) !important;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white !important;
+            box-shadow: 0 4px 15px rgba(255, 69, 0, 0.4);
+        }
+
+        /* Playlist View Layout */
+        .playlist-view-container {
+            background: var(--card-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 69, 0, 0.35);
+            border-radius: 24px;
+            padding: 30px;
+            max-height: 460px;
+            overflow-y: auto;
+        }
+
+        .playlist-view-header {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-main);
+        }
+
+        .track-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .track-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 18px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.02);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .track-row:hover {
+            background: rgba(255, 255, 255, 0.06);
+            transform: translateX(4px);
+            border-color: rgba(255, 69, 0, 0.3);
+        }
+
+        .track-row.active {
+            background: linear-gradient(90deg, rgba(255, 69, 0, 0.15), transparent);
+            border-left: 4px solid var(--accent-orange);
+        }
+
+        .track-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .track-index {
+            color: var(--text-muted);
+            font-size: 13px;
+            width: 20px;
+            font-weight: 600;
+        }
+
+        .track-name-box h5 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .track-name-box p {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        #audio-player {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Mac-Style Window Container -->
+    <div class="app-window">
+        <!-- Window Dots -->
+        <div class="window-dots">
+            <div class="dot dot-red"></div>
+            <div class="dot dot-yellow"></div>
+            <div class="dot dot-green"></div>
+        </div>
+
+        <!-- Sidebar Navigation -->
+        <aside>
+            <!-- iOS-Style Glass Digital Clock & Date Widget -->
+            <div class="ios-clock-widget">
+                <div class="ios-date" id="ios-date-text">Wed Jan 28</div>
+                <div class="ios-time" id="ios-time-text">12:03</div>
+            </div>
+
+            <div class="logo-area">
+                <h2>iSRV</h2>
+                <span>Collection</span>
+            </div>
+
+            <div class="nav-section">
+                <a class="nav-item active" id="nav-home" onclick="switchView('home')"><i class="fa-solid fa-house"></i> Home</a>
+                <a class="nav-item" id="nav-explore" onclick="switchView('explore')"><i class="fa-solid fa-headphones"></i> Explore Playlist</a>
+            </div>
+        </aside>
+
+        <!-- Main Content Panel -->
+        <main>
+            <div class="top-bar">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" placeholder="Search iSRV tracks...">
+                </div>
+                <div style="font-size: 12px; color: var(--text-muted); background: rgba(255,255,255,0.04); padding: 6px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.06);">
+                    <i class="fa-solid fa-radio" style="color: var(--accent-orange); margin-right: 6px;"></i> Live Stream
+                </div>
+            </div>
+
+            <!-- HOME VIEW -->
+            <div id="view-home" class="view-section active">
+                <div class="hero-showcase">
+                    <!-- Highlighted Player Card with Dual Neon Border Loop -->
+                    <div class="player-card-wrapper">
+                        <div class="player-card">
+                            <div class="player-top-row">
+                                <div class="track-meta-group">
+                                    <div class="album-art-thumb">
+                                        <i class="fa-solid fa-compact-disc fa-spin" style="animation-duration: 8s;"></i>
+                                    </div>
+                                    <div>
+                                        <div class="track-title" id="display-title">Select a track to start</div>
+                                        <div class="track-subtitle" id="display-artist">iSRV Collection</div>
+                                    </div>
+                                </div>
+                                <div class="control-btns">
+                                    <button onclick="prevTrack()"><i class="fa-solid fa-backward-step"></i></button>
+                                    <button class="play-pause-btn" id="play-pause-main"><i class="fa-solid fa-play" id="play-icon"></i></button>
+                                    <button onclick="nextTrack()"><i class="fa-solid fa-forward-step"></i></button>
+                                </div>
+                            </div>
+
+                            <!-- Circular Beat Pulse Visualizer -->
+                            <div class="visualizer-container">
+                                <canvas id="visualizer-canvas"></canvas>
+                            </div>
+
+                            <!-- Audio Controls & Timeline -->
+                            <div class="audio-controls-modern">
+                                <div class="progress-bar-container" id="progress-container">
+                                    <div class="progress-bar-fill" id="progress-fill"></div>
+                                </div>
+                                <div class="player-actions">
+                                    <div style="font-size: 11px; color: var(--text-muted);" id="current-time">0:00</div>
+                                    <div style="font-size: 11px; color: var(--text-muted);" id="total-duration">0:00</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- EXPLORE PLAYLIST VIEW -->
+            <div id="view-explore" class="view-section">
+                <div class="playlist-view-container">
+                    <div class="playlist-view-header">
+                        <span><i class="fa-solid fa-list-music" style="color: var(--accent-orange); margin-right: 10px;"></i> Full Playlist Library</span>
+                        <span style="font-size: 12px; color: var(--text-muted);" id="playlist-count">7 Tracks Available</span>
+                    </div>
+                    
+                    <div class="track-list" id="full-track-list"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Hidden audio element -->
+    <audio id="audio-player"></audio>
+
+    <script>
+        // Real-Time iOS Clock & Date Updater
+        function updateIOSClock() {
+            const now = new Date();
+            const dateOptions = { weekday: 'short', month: 'short', day: 'numeric' };
+            document.getElementById('ios-date-text').innerText = now.toLocaleDateString(undefined, dateOptions);
+            
+            const timeOptions = { hour: 'numeric', minute: '2-digit', hour12: true };
+            document.getElementById('ios-time-text').innerText = now.toLocaleTimeString(undefined, timeOptions);
+        }
+        setInterval(updateIOSClock, 1000);
+        updateIOSClock();
+
+        const audio = document.getElementById('audio-player');
+        const playPauseBtn = document.getElementById('play-pause-main');
+        const playIcon = document.getElementById('play-icon');
+        const displayTitle = document.getElementById('display-title');
+        const displayArtist = document.getElementById('display-artist');
+        const progressContainer = document.getElementById('progress-container');
+        const progressFill = document.getElementById('progress-fill');
+        const currentTimeEl = document.getElementById('current-time');
+        const totalDurationEl = document.getElementById('total-duration');
+
+        // Circular Canvas Visualizer Setup
+        const canvas = document.getElementById('visualizer-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 200;
+        canvas.height = 200;
+
+        // Complete Full Playlist Library (All 7 Songs)
+        const playlist = [
+            {
+                title: "THE BATMAN x SAJAN SAJAN",
+                artist: "iSRV Collection",
+                src: "./songs/THE BATMAN x SAJAN SAJAN.mp3"
+            },
+            {
+                title: "Mission Impossible (Indian Version)",
+                artist: "Tushar Lall (TIJP)",
+                src: "./songs/Mission Impossible (Indian Version) - Tushar Lall (TIJP).mp3"
+            },
+            {
+                title: "The Dark Knight (Indian Version)",
+                artist: "Tushar Lall",
+                src: "./songs/The Dark Knight (Indian Version) - Tushar Lall.mp3"
+            },
+            {
+                title: "Kygo Whatever Acoustic",
+                artist: "Kygo",
+                src: "./songs/Kygo_Whatever_Acoustic.mp3"
+            },
+            {
+                title: "When You're Gone (Acoustic)",
+                artist: "Shawn Mendes",
+                src: "./songs/Shawn_Mendes_-_When_Youre_Gone_(Acoustic).mp3"
+            },
+            {
+                title: "Bhanwaray (NESCAFÉ Basement)",
+                artist: "Goher Mumtaz",
+                src: "./songs/BHANWARAY feat. Goher Mumtaz - NESCAFÉ Basement Season 5.mp3"
+            },
+            {
+                title: "I See Fire (Kygo Remix)",
+                artist: "Ed Sheeran",
+                src: "./songs/Ed_Sheeran_-_I_See_Fire_Kygo_Remix.mp3"
+            }
+        ];
+
+        let currentTrackIndex = 0;
+        let isPlaying = false;
+
+        function renderPlaylistView() {
+            const listContainer = document.getElementById('full-track-list');
+            listContainer.innerHTML = '';
+            
+            playlist.forEach((track, index) => {
+                const isActive = index === currentTrackIndex;
+                const row = document.createElement('div');
+                row.className = `track-row ${isActive ? 'active' : ''}`;
+                row.onclick = () => {
+                    loadTrack(index);
+                    switchView('home');
+                };
+                
+                row.innerHTML = `
+                    <div class="track-left">
+                        <div class="track-index">${index < 9 ? '0' + (index + 1) : index + 1}</div>
+                        <div class="track-name-box">
+                            <h5>${track.title}</h5>
+                            <p>${track.artist}</p>
+                        </div>
+                    </div>
+                    <div style="color: ${isActive ? 'var(--accent-orange)' : 'var(--text-muted)'}; font-size: 13px;">
+                        <i class="fa-solid ${isActive && isPlaying ? 'fa-volume-high' : 'fa-play'}"></i>
+                    </div>
+                `;
+                listContainer.appendChild(row);
+            });
+            document.getElementById('playlist-count').innerText = `${playlist.length} Tracks Available`;
+        }
+
+        function loadTrack(index) {
+            currentTrackIndex = index;
+            const track = playlist[index];
+            audio.src = track.src;
+            displayTitle.innerText = track.title;
+            displayArtist.innerText = track.artist;
+            
+            audio.play().then(() => {
+                isPlaying = true;
+                playIcon.classList.remove('fa-play');
+                playIcon.classList.add('fa-pause');
+                renderPlaylistView();
+            }).catch(e => {
+                console.log("Playback error:", e);
+            });
+        }
+
+        function nextTrack() {
+            loadTrack((currentTrackIndex + 1) % playlist.length);
+        }
+
+        function prevTrack() {
+            loadTrack((currentTrackIndex - 1 + playlist.length) % playlist.length);
+        }
+
+        playPauseBtn.addEventListener('click', () => {
+            if (!audio.src) {
+                loadTrack(0);
+                return;
+            }
+
+            if (isPlaying) {
+                audio.pause();
+                isPlaying = false;
+                playIcon.classList.remove('fa-pause');
+                playIcon.classList.add('fa-play');
+            } else {
+                audio.play().then(() => {
+                    isPlaying = true;
+                    playIcon.classList.remove('fa-play');
+                    playIcon.classList.add('fa-pause');
+                });
+            }
+            renderPlaylistView();
+        });
+
+        // Dynamic Circular Pulse Visualizer Animation Loop
+        function drawVisualizer() {
+            requestAnimationFrame(drawVisualizer);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            let radius = 38;
+            const time = Date.now() / 200;
+
+            const pulse = isPlaying ? Math.sin(time * 3) * 10 + 12 : 6;
+            
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius + pulse, 0, Math.PI * 2);
+            ctx.strokeStyle = isPlaying ? 'rgba(255, 69, 0, 0.7)' : 'rgba(255, 255, 255, 0.15)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            const barCount = 32;
+            const angleStep = (Math.PI * 2) / barCount;
+
+            for (let i = 0; i < barCount; i++) {
+                const wave = isPlaying ? Math.sin(time + i * 0.4) * 18 + Math.random() * 8 : 4;
+                const barLength = Math.max(4, wave);
+                const angle = i * angleStep;
+
+                const x1 = centerX + Math.cos(angle) * radius;
+                const y1 = centerY + Math.sin(angle) * radius;
+                const x2 = centerX + Math.cos(angle) * (radius + barLength);
+                const y2 = centerY + Math.sin(angle) * (radius + barLength);
+
+                const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
+                gradient.addColorStop(0, '#ff4500');
+                gradient.addColorStop(1, '#ff2a75');
+
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.strokeStyle = gradient;
+                ctx.lineWidth = 3;
+                ctx.lineCap = 'round';
+                ctx.stroke();
+            }
+        }
+        drawVisualizer();
+
+        audio.addEventListener('timeupdate', () => {
+            if (audio.duration) {
+                const percent = (audio.currentTime / audio.duration) * 100;
+                progressFill.style.width = percent + '%';
+                currentTimeEl.innerText = formatTime(audio.currentTime);
+                totalDurationEl.innerText = formatTime(audio.duration);
+            }
+        });
+
+        audio.addEventListener('ended', () => nextTrack());
+
+        progressContainer.addEventListener('click', (e) => {
+            const width = progressContainer.clientWidth;
+            const clickX = e.offsetX;
+            audio.currentTime = (clickX / width) * audio.duration;
+        });
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+
+        function switchView(viewName) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+            if (viewName === 'home') {
+                document.getElementById('view-home').classList.add('active');
+                document.getElementById('nav-home').classList.add('active');
+            } else if (viewName === 'explore') {
+                document.getElementById('view-explore').classList.add('active');
+                document.getElementById('nav-explore').classList.add('active');
+                renderPlaylistView();
+            }
+        }
+
+        if (playlist.length > 0) {
+            displayTitle.innerText = playlist[0].title;
+            displayArtist.innerText = playlist[0].artist;
+            renderPlaylistView();
+        }
+    </script>
+</body>
+</html>
