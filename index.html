@@ -33,14 +33,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
-            overflow: hidden;
-            position: relative;
+            padding: 15px;
+            overflow-x: hidden;
         }
 
-        /* Outer Mac-Style App Window Container */
+        /* Mac-Style App Window Container (Responsive) */
         .app-window {
-            width: 1080px;
+            width: 100%;
+            max-width: 1080px;
             height: 640px;
             background: rgba(15, 12, 28, 0.85);
             backdrop-filter: blur(30px);
@@ -84,6 +84,7 @@
             padding: 55px 20px 30px 20px;
             gap: 24px;
             z-index: 5;
+            flex-shrink: 0;
         }
 
         /* Authentic iOS Liquid Glass Widget */
@@ -93,7 +94,7 @@
             backdrop-filter: blur(25px);
             -webkit-backdrop-filter: blur(25px);
             border-radius: 18px;
-            padding: 16px 18px;
+            padding: 14px 16px;
             display: flex;
             flex-direction: column;
             gap: 4px;
@@ -101,8 +102,6 @@
                 0 10px 30px rgba(0, 0, 0, 0.5), 
                 inset 0 1px 1px rgba(255, 255, 255, 0.25), 
                 inset 0 -1px 1px rgba(0, 0, 0, 0.4);
-            position: relative;
-            overflow: hidden;
         }
 
         .ios-date {
@@ -114,7 +113,7 @@
         }
 
         .ios-time {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 700;
             letter-spacing: 1px;
             color: #ffffff;
@@ -173,7 +172,7 @@
         /* Main Content Area */
         main {
             flex: 1;
-            padding: 40px 40px;
+            padding: 40px;
             display: flex;
             flex-direction: column;
             gap: 25px;
@@ -275,34 +274,36 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 10px;
         }
 
         .track-meta-group {
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 16px;
+            min-width: 0;
         }
 
         .album-art-thumb {
-            width: 70px;
-            height: 70px;
+            width: 60px;
+            height: 60px;
             border-radius: 14px;
             background: linear-gradient(135deg, #2b1055, #ff4500);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
+            font-size: 22px;
             color: white;
             box-shadow: 0 8px 20px rgba(255, 69, 0, 0.3);
             border: 1px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
         }
 
         .track-title {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 700;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
             letter-spacing: 0.5px;
-            max-width: 350px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -310,7 +311,7 @@
 
         .track-subtitle {
             color: var(--text-muted);
-            font-size: 13px;
+            font-size: 12px;
         }
 
         /* Circular Visualizer Canvas Container */
@@ -318,22 +319,22 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 150px;
+            height: 130px;
             position: relative;
             z-index: 1;
             margin: 5px 0;
         }
 
         #visualizer-canvas {
-            width: 140px;
-            height: 140px;
+            width: 120px;
+            height: 120px;
         }
 
         /* Custom Modern Audio Player UI Controls */
         .audio-controls-modern {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
             z-index: 1;
         }
 
@@ -362,7 +363,7 @@
 
         .control-btns {
             display: flex;
-            gap: 20px;
+            gap: 15px;
             align-items: center;
         }
 
@@ -370,7 +371,7 @@
             background: transparent;
             border: none;
             color: var(--text-main);
-            font-size: 18px;
+            font-size: 16px;
             cursor: pointer;
             transition: 0.2s;
         }
@@ -381,8 +382,8 @@
 
         .play-pause-btn {
             background: linear-gradient(135deg, var(--accent-orange), var(--accent-pink)) !important;
-            width: 44px;
-            height: 44px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -398,15 +399,15 @@
             -webkit-backdrop-filter: blur(25px);
             border: 1px solid rgba(255, 69, 0, 0.35);
             border-radius: 24px;
-            padding: 30px;
-            max-height: 460px;
+            padding: 24px;
+            max-height: 420px;
             overflow-y: auto;
         }
 
         .playlist-view-header {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 700;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -416,15 +417,15 @@
         .track-list {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
         }
 
         .track-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 14px 18px;
-            border-radius: 14px;
+            padding: 12px 15px;
+            border-radius: 12px;
             background: rgba(255, 255, 255, 0.02);
             cursor: pointer;
             transition: all 0.2s ease;
@@ -445,29 +446,103 @@
         .track-left {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 12px;
+            min-width: 0;
         }
 
         .track-index {
             color: var(--text-muted);
-            font-size: 13px;
-            width: 20px;
+            font-size: 12px;
+            width: 18px;
             font-weight: 600;
         }
 
         .track-name-box h5 {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .track-name-box p {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-muted);
         }
 
         #audio-player {
             display: none;
+        }
+
+        /* RESPONSIVE MOBILE MEDIA QUERY */
+        @media (max-width: 850px) {
+            body {
+                padding: 0;
+                align-items: flex-start;
+            }
+            .app-window {
+                width: 100vw;
+                height: 100vh;
+                border-radius: 0;
+                border: none;
+                flex-direction: column;
+                overflow-y: auto;
+            }
+            .window-dots {
+                display: none; /* Hide macOS dots on mobile */
+            }
+            aside {
+                width: 100%;
+                flex-direction: row;
+                flex-wrap: wrap;
+                align-items: center;
+                justify-content: space-between;
+                padding: 25px 20px 15px 20px;
+                gap: 15px;
+            }
+            .ios-clock-widget {
+                flex: 1;
+                min-width: 140px;
+                padding: 10px 12px;
+            }
+            .logo-area {
+                display: none; /* Hide secondary logo on small mobile headers to save space */
+            }
+            .nav-section {
+                flex-direction: row;
+                width: 100%;
+                gap: 10px;
+                margin-top: 0;
+            }
+            .nav-item {
+                flex: 1;
+                justify-content: center;
+                padding: 10px;
+                font-size: 13px;
+            }
+            main {
+                padding: 15px 20px;
+                height: auto;
+                overflow: visible;
+            }
+            .top-bar {
+                flex-direction: column;
+                gap: 10px;
+                align-items: stretch;
+            }
+            .search-box {
+                width: 100%;
+            }
+            .player-top-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            .control-btns {
+                width: 100%;
+                justify-content: space-around;
+            }
         }
     </style>
 </head>
@@ -482,7 +557,7 @@
             <div class="dot dot-green"></div>
         </div>
 
-        <!-- Sidebar Navigation -->
+        <!-- Sidebar / Top Navigation for Mobile -->
         <aside>
             <!-- iOS-Style Glass Digital Clock & Date Widget -->
             <div class="ios-clock-widget">
@@ -497,7 +572,7 @@
 
             <div class="nav-section">
                 <a class="nav-item active" id="nav-home" onclick="switchView('home')"><i class="fa-solid fa-house"></i> Home</a>
-                <a class="nav-item" id="nav-explore" onclick="switchView('explore')"><i class="fa-solid fa-headphones"></i> Explore Playlist</a>
+                <a class="nav-item" id="nav-explore" onclick="switchView('explore')"><i class="fa-solid fa-headphones"></i> Explore</a>
             </div>
         </aside>
 
@@ -508,7 +583,7 @@
                     <i class="fa-solid fa-magnifying-glass"></i>
                     <input type="text" placeholder="Search iSRV tracks...">
                 </div>
-                <div style="font-size: 12px; color: var(--text-muted); background: rgba(255,255,255,0.04); padding: 6px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.06);">
+                <div style="font-size: 12px; color: var(--text-muted); background: rgba(255,255,255,0.04); padding: 6px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; width: fit-content;">
                     <i class="fa-solid fa-radio" style="color: var(--accent-orange); margin-right: 6px;"></i> Live Stream
                 </div>
             </div>
@@ -524,7 +599,7 @@
                                     <div class="album-art-thumb">
                                         <i class="fa-solid fa-compact-disc fa-spin" style="animation-duration: 8s;"></i>
                                     </div>
-                                    <div>
+                                    <div style="min-width: 0;">
                                         <div class="track-title" id="display-title">Select a track to start</div>
                                         <div class="track-subtitle" id="display-artist">iSRV Collection</div>
                                     </div>
